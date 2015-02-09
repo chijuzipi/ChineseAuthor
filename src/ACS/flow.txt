@@ -1,3 +1,4 @@
-listOfIssues.html(mannual download) -> urlGenerator.py -> URLlist.txt -> collector.py -> mongodb -> authorAnalyzer.py
+listOfIssues.html(mannual download) -> urlGenerator.py -> URLlist.txt -> collector.py -> mongodb ->
+-> analyze
 
 

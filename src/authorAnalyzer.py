@@ -7,16 +7,16 @@
 
 from pymongo import MongoClient
 import re
+from plotbar import Plot
 
 class Analyzer:
   def __init__(self):
-    # init hashmap
+    # build hashmap
     self.firstname, self.surname = self.buildDict()
 
     client = MongoClient()
     db = client.author
-    collection = db.JACS
-
+    collection = db.AcsNano
 
     cursor = collection.find({})
     index = 0
@@ -24,21 +24,89 @@ class Analyzer:
     
     firstChinese = 0
     self.count = 0
+    
+    # total paper counter 
+    totalResult = {}
 
+    # chinese first author counter
+    firstResult = {}
+
+    # chinese co-author counter
+    hasResult = {}
+    
     while index != count: 
       if index % 1000 == 0:
         print "processed " + str(index) + " articles..."
       doc = cursor[index]
+
       authors = doc['author']
+      date    = doc['date']
+
       authorList = self.getAuthors(authors)
-      self.analyze(authorList)
+      year = self.getYear(date)
+
+      #increase total paper counter
+      if year in totalResult:
+        totalResult[year] += 1
+      else:
+        totalResult[year] = 1
+      
+      first, coauthor = self.detectChinese(authorList)
+
+      if(first):
+        if year in firstResult:
+          firstResult[year] += 1
+        else:
+          firstResult[year]  = 1
+      if(coauthor):
+        if year in hasResult:
+          hasResult[year] += 1
+        else:
+          hasResult[year]  = 1
+
       index += 1
       cursor.close()
-    print self.count
+    
+    self.alignment(totalResult, firstResult, hasResult)
+    saveToDB(totalResult, firstResult, hasResult)    
 
-  def analyze(self, authorList):
-    firstAuthor = authorList[0] 
-    self.isChinese(firstAuthor)
+    #self.makeFigure(totalResult, firstResult, hasResult)
+    
+  def makeFigure(self, total, first, has):
+    yearList  = list(total.keys())
+    yearList.sort()
+    y1 = [] 
+    y2 = []
+    y3 = []
+    for year in yearList:
+      y1.append(total[year])
+      y2.append(first[year])
+      y3.append(has[year])
+
+    plotHelper = Plot()
+    plotHelper.plotBar(yearList, y1, y2, y3, 'AcsNano')
+
+  def alignment(self, totalResult, firstResult, hasResult):
+    for key in totalResult:
+      if key not in firstResult:
+        firstResult[key] = 0
+      if key not in hasResult:
+        hasResult[key]   = 0
+
+  def getYear(self, date):
+    out = date.split(',')
+    return out[1].strip()
+
+  def detectChinese(self, authorList):
+
+    if self.isChinese(authorList[0]):
+      return True, True
+
+    for author in authorList:
+      if self.isChinese(author):
+        return False, True
+
+    return False, False
 
   def isChinese(self, name):
     array = name.split()
@@ -47,7 +115,10 @@ class Analyzer:
     sur   = array[len(array)-1] 
     first = array[0]
     if sur in self.surname:
-      self.count += 1
+      #self.count += 1
+      return True
+    else: 
+      return False
       #print first + " " + sur
     
   def getAuthors(self, authors):
@@ -58,8 +129,8 @@ class Analyzer:
 
     surnameSet = set() 
     firstSet   = set()
-    f1 = open('firstname.txt', 'r')
-    f2 = open('surname.txt', 'r')
+    f1 = open('../library/firstname.txt', 'r')
+    f2 = open('../library/surname.txt', 'r')
     firstname   = f1.readlines()
     surname     = f2.readlines()
 
