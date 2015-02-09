@@ -4,7 +4,6 @@
   Northwestern University
 **************************************************************************
 '''
-
 import urllib2, cookielib
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
@@ -18,52 +17,22 @@ class Collector:
     
     client = MongoClient()
     self.db = client.author
-    self.collection = self.db.AnalyticalChemistry
+    #self.collection = self.db.AnalyticalChemistry
+    self.collection = self.db.test
     
-    # the module to generate the full url list
-    '''
-    pool = self.getURLlist()
-    f = open("urlListAnaChem.txt", "w")
-    for item in pool:
-      f.write(item + "\n")
-    '''
-    
-    # the module to read from txt
-    with open("urlListAnaChem.txt") as f:
+    # read url list from txt
+    with open("archive/processed/Langmuir.txt") as f:
       pool = f.readlines()
     
     for url in pool:
-      print url + "......."
+      print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=60).read()
       self.parse(content)
     
-  def generateURL(self):
-    pool = []
-    parentURL = "parentURL"
-    for vol in range (1,9):
-      for issue in range(1, 13):
-        url = parentURL + str(vol) + "/" + str(issue)
-        pool.append(url)
-    return pool 
-
-  def getURLlist(self):
-    output = []
-
-    f = open('AnaChemFullList.html', 'r')
-    content = f.read()
-    soup = BeautifulSoup(content)
-    out = soup.find_all(href=True)
-    for item in out:
-      url = item["href"]
-      if ("http://pubs.acs.org/toc/ancham" in url or "http://pubs.acs.org/toc/iecac0" in url) and len(url) < 50:
-        output.append(url)
-    
-    return output
-
-
+## depracted ##
   def getAffi(self, doi):
     url = "http://pubs.acs.org/doi/full/" +  doi
     content = urllib2.urlopen(url).read()
@@ -112,8 +81,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-

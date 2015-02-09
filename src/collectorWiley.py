@@ -1,3 +1,12 @@
+'''
+*********** This class to collect journal info from Wiley 
+  NOT FINISHED
+
+  (c) 2015 by Chad Zhou
+  Northwestern University
+**************************************************************************
+'''
+
 import urllib2, cookielib
 from pymongo import MongoClient
 from bs4 import BeautifulSoup

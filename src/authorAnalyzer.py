@@ -27,7 +27,7 @@ class Analyzer:
 
     while index != count: 
       if index % 1000 == 0:
-        print "goes to here" + str(index)
+        print "processed " + str(index) + " articles..."
       doc = cursor[index]
       authors = doc['author']
       authorList = self.getAuthors(authors)
@@ -66,7 +66,6 @@ class Analyzer:
     for item1 in firstname:
       firstSet.add(item1.rstrip('\n')) 
     for item2 in surname:
-      #print item2.rstrip('\n').title()
       surnameSet.add(item2.rstrip('\n').title()) 
     
     return firstSet, surnameSet

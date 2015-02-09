@@ -1,0 +1,3 @@
+listOfIssues.html(mannual download) -> urlGenerator.py -> URLlist.txt -> collector.py -> mongodb -> authorAnalyzer.py
+
+
