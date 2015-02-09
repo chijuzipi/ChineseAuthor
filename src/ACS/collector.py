@@ -17,8 +17,8 @@ class Collector:
     
     client = MongoClient()
     self.db = client.author
-    #self.collection = self.db.AnalyticalChemistry
-    self.collection = self.db.test
+    self.collection = self.db.Langmuir_coll
+    #self.collection = self.db.test
     
     # read url list from txt
     with open("archive/processed/Langmuir.txt") as f:

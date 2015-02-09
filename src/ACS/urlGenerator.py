@@ -10,8 +10,8 @@ class URLGenerator:
     #self.synthesis()
 
   def generate(self):
-    f1 = open('archive/LangmuirIssues.html', 'r')
-    f2 = open('archive/processed/Langmuir.txt', 'w')
+    f1 = open('archive/JACSIssues.html', 'r')
+    f2 = open('archive/processed/JACS.txt', 'w')
     content = f1.read()
     soup = BeautifulSoup(content)
 
@@ -31,8 +31,8 @@ class URLGenerator:
         f.write(url + '\n')
 
   def confirm(self, url):
-    critic1 = "http://pubs.acs.org/toc/langd5" in url 
-    critic3 = len(url) < 50
+    critic1 = "http://pubs.acs.org/toc/jacsat" in url 
+    critic3 = len(url) < 100
     if critic1 and critic3:
       return True
     
