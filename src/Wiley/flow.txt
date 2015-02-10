@@ -1,0 +1,8 @@
+listOfIssues.html(mannual download) -> urlGenerator.py (generate url_list and year of published) -> URLlist.txt -> collector.py -> mongodb ->
+-> analyze
+
+
+
+******************NOTE*********************
+1) Advanced Materials (has different articles types)
+2) 
