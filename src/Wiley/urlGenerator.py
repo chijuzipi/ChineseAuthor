@@ -11,8 +11,8 @@ class URLGenerator:
     #self.synthesis()
 
   def generate(self):
-    f1 = open('archive/AdvMaterialIssues.html', 'r')
-    f2 = open('archive/processed/AdvMaterial.txt', 'w')
+    f1 = open('archive/AdvFunMaterialIssues.html', 'r')
+    f2 = open('archive/processed/AdvFunMaterial.txt', 'w')
     content = f1.read()
     soup = BeautifulSoup(content)
 
@@ -29,7 +29,7 @@ class URLGenerator:
     return itemid.split('_')[1]
 
   def confirm(self, url):
-    critic1 = "http://onlinelibrary.wiley.com/doi/10.1002" in url 
+    critic1 = "http://onlinelibrary.wiley.com/doi/10.1002/" in url 
     critic3 = len(url) < 150
     if critic1 and critic3:
       return True

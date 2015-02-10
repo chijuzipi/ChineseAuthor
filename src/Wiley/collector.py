@@ -18,9 +18,9 @@ class Collector:
 
     client = MongoClient()
     self.db = client.Wiley
-    self.collection = self.db.test
+    self.collection = self.db.testAdvFun
     # read url list from txt
-    with open("archive/processed/AdvMaterial.txt") as f:
+    with open("archive/processed/AdvFunMaterial.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -39,7 +39,7 @@ class Collector:
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, url, year)
-      index += 1 
+      index += div 
 
   def parse(self, content, url, year):
     # first get all the possible info from url
