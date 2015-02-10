@@ -17,11 +17,11 @@ class Collector:
     
     client = MongoClient()
     self.db = client.author
-    self.collection = self.db.Langmuir_coll
+    self.collection = self.db.InorganicChem_coll
     #self.collection = self.db.test
     
     # read url list from txt
-    with open("archive/processed/Langmuir.txt") as f:
+    with open("archive/processed/InorganicChem.txt") as f:
       pool = f.readlines()
     
     for url in pool:
@@ -29,7 +29,7 @@ class Collector:
       print datetime.datetime.now()
 
       # timeout 60 s
-      content = urllib2.urlopen(url, timeout=60).read()
+      content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content)
     
 ## depracted ##
