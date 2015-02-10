@@ -1,0 +1,1 @@
+1) JACS exist "May 1984" or "February 1984" format, need to split with space

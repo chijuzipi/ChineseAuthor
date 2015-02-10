@@ -68,9 +68,9 @@ class Analyzer:
       cursor.close()
     
     self.alignment(totalResult, firstResult, hasResult)
-    saveToDB(totalResult, firstResult, hasResult)    
+    #saveToDB(totalResult, firstResult, hasResult)    
 
-    #self.makeFigure(totalResult, firstResult, hasResult)
+    self.makeFigure(totalResult, firstResult, hasResult)
     
   def makeFigure(self, total, first, has):
     yearList  = list(total.keys())
@@ -84,7 +84,7 @@ class Analyzer:
       y3.append(has[year])
 
     plotHelper = Plot()
-    plotHelper.plotBar(yearList, y1, y2, y3, 'AcsNano')
+    plotHelper.plotBar(yearList, y1, y2, y3, 'JACS')
 
   def alignment(self, totalResult, firstResult, hasResult):
     for key in totalResult:
@@ -95,6 +95,10 @@ class Analyzer:
 
   def getYear(self, date):
     out = date.split(',')
+    if len(out) < 2:
+      print date
+      return out[0].strip()
+
     return out[1].strip()
 
   def detectChinese(self, authorList):
@@ -129,8 +133,8 @@ class Analyzer:
 
     surnameSet = set() 
     firstSet   = set()
-    f1 = open('../library/firstname.txt', 'r')
-    f2 = open('../library/surname.txt', 'r')
+    f1 = open('../library/firstname_handian.txt', 'r')
+    f2 = open('../library/surname_handian.txt', 'r')
     firstname   = f1.readlines()
     surname     = f2.readlines()
 
