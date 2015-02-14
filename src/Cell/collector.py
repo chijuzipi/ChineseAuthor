@@ -16,17 +16,15 @@ class Collector:
     cookie_support= urllib2.HTTPCookieProcessor(cookielib.CookieJar())
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
-
-    '''
     client = MongoClient()
-    self.db = client.Wiley
-    self.collection = self.db.testAdvFun
-    '''
+    self.db = client.Cell
+    self.collection = self.db.Cell_coll
+
     # read url list from txt
     with open("archive/processed/Cell.txt") as f:
       pool = f.readlines()
    
-    div = len(pool) / 20 
+    div = len(pool) / 4 
     index = 0
     
     #yearMap = self.getMap() 
@@ -45,47 +43,51 @@ class Collector:
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, url, year, issue)
-      index += div 
+      index += 1
 
   def parse(self, content, url, year, issue):
     # first get all the possible info from url
-    soup = BeautifulSoup(content)
-    groups = soup.findAll("div", {"class" : 'articleCitation'})  
-    for item in groups:
-      comp = {}
-      info   = item.find('div', {'class' : 'detail'})
-      title  = info.find('div', {'class' : 'title'}).text
-      authors = info.find('div', {'class' : 'authors'}).text
-      doi    = info.find('div', {'class' : 'doi'}).text
-      print
+    soup   = BeautifulSoup(content)
+    uppers  = soup.findAll("div", {"class" : 'articleCitations'})  
+    for upper in uppers:
+      groups = upper.findAll("div", {"class" : ['heading', 'articleCitation']})  
+      if(len(groups) == 0):
+        continue
+      article_type = ""
+      for item in groups:
+        #print item.text
+        if 'heading' in item['class']:
+          article_type = item.text 
+          print "----------------->>>", item.text
+          continue
+          
+        comp = {}
+        info   = item.find('div', {'class' : 'detail'})
+        title  = info.find('div', {'class' : 'title'}).text
+        authors = info.find('div', {'class' : 'authors'}).text
+        doi    = info.find('div', {'class' : 'doi'}).text
 
-      '''
-      comp["title"]   = title.text
-      comp["author"]  = authors
-      comp["doi"]     = doi
-      comp["info"]    = info
-      comp["year"]    = year
-      comp["article type"] = sessionName
-      self.collection.insert(comp)
-      print "save success " + comp["doi"]
-      '''
+        if article_type == "":
+          article_type = "Articles"
 
-      print '***TITLE*** ' + title
-      print '***DOI*** ' + doi
-      print '*** AUTHOR *** ' + authors
-      print '*** ISSUE *** ' + issue
-      print year
-      print
+        comp["title"]   = title
+        comp["author"]  = authors
+        comp["type"]    = article_type
+        comp["doi"]     = doi
+        comp["issue"]   = issue
+        comp["year"]    = year
 
-  def getMap(self):
-    out = {}
-    year   = 1989 
-    volume = 1
-    while year <= 2015:
-      out[str(volume)] = year
-      volume += 1
-      year += 1
-    return out
+        self.collection.insert(comp)
+        print "save success " + comp["doi"]
+        '''
+        print '***TYPE*** ' + article_type 
+        print '***TITLE*** ' + title
+        print '***DOI*** ' + doi
+        print '*** AUTHOR *** ' + authors
+        print '*** ISSUE *** ' + issue
+        print year
+        print
+        '''
 
 def main():
   collector = Collector()
