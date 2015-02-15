@@ -35,6 +35,7 @@ class Collector:
       year  = infoArray[1]
       issue = infoArray[2]
       if(issue == 'Supplement'):
+        index += 1
         continue
 
       print "CRAWLING: " + url 
