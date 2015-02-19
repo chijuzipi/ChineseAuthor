@@ -5,10 +5,10 @@ class URLGenerator:
   def __init__(self):
 
     # when the urls from file
-    self.generate()
+    #self.generate()
 
     # when the urls can be direct synthesized
-    #self.synthesis()
+    self.synthesis()
 
   def generate(self):
     f1 = open('archive/NatureIssues.html', 'r')
@@ -36,15 +36,30 @@ class URLGenerator:
     if critic1 and critic2 and critic3:
       return True
 
-'''
   def synthesis(self):
-    f = open('archive/processed/test.txt', 'w')
-    parentURL = "parentURL"
-    for vol in range (1,9):
-      for issue in range(1, 13):
-        url = parentURL + str(vol) + "/" + str(issue)
+    f = open('archive/processed/NatureCommu.txt', 'w')
+    parentURL = "http://www.nature.com/ncomms/archive/date/"
+
+    for year in range (2010, 2011):
+      for mon in range(4, 13):
+        yearstr  = str(year)
+        monstr   = str(mon) if len(str(mon)) == 2 else '0'+str(mon)
+        url = parentURL + yearstr + "/" + monstr
         f.write(url + '\n')
-'''
+
+    for year in range (2011, 2015):
+      for mon in range(1, 13):
+        yearstr  = str(year)
+        monstr   = str(mon) if len(str(mon)) == 2 else '0'+str(mon)
+        url = parentURL + yearstr + "/" + monstr
+        f.write(url + '\n')
+
+    for year in range (2015, 2016):
+      for mon in range(1, 3):
+        yearstr  = str(year)
+        monstr   = str(mon) if len(str(mon)) == 2 else '0'+str(mon)
+        url = parentURL + yearstr + "/" + monstr
+        f.write(url + '\n')
     
 def main():
   generator = URLGenerator()
