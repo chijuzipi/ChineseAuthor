@@ -133,8 +133,8 @@ class Analyzer:
 
     surnameSet = set() 
     firstSet   = set()
-    f1 = open('../library/firstname_handian.txt', 'r')
-    f2 = open('../library/surname_handian.txt', 'r')
+    f1 = open('../../library/firstname_handian.txt', 'r')
+    f2 = open('../../library/surname_handian.txt', 'r')
     firstname   = f1.readlines()
     surname     = f2.readlines()
 

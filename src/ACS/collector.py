@@ -25,6 +25,7 @@ class Collector:
       pool = f.readlines()
     
     for url in pool:
+    
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
