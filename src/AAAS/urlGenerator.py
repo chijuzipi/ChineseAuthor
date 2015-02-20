@@ -1,6 +1,7 @@
 import urllib2, cookielib
 from bs4 import BeautifulSoup
 import time
+import re
 
 class URLGenerator:
   def __init__(self):
@@ -9,17 +10,17 @@ class URLGenerator:
     urllib2.install_opener(opener)
 
     # when the urls from file
-    #self.generate()
+    self.generate()
 
     # when the urls can be direct synthesized
-    self.synthesis()
+    #self.synthesis()
 
   def generate(self):
     f1 = open('archive/processed/PNASYear.txt', 'r')
     f2 = open('archive/processed/PNAS.txt', 'w')
     pool = f1.readlines()
     for url in pool:
-      time.sleep(5)
+      time.sleep(3)
       year = url.split('/')
       year = year[len(year)-1]
       print "processing " , url
@@ -27,14 +28,14 @@ class URLGenerator:
       soup = BeautifulSoup(content)
 
       #find every <a href ... tag
-      out = soup.find_all(href=True)
-      for item in out:
-        if(item.text != "Table of Contents"):
-          continue
-        url = item["href"]
-        url = "http://www.sciencemag.org" + url
-        print url
-        f2.write(url + ' ' + year)
+      blocks = soup.findAll("td", {"class" : "proxy-archive-by-year-month"})
+      for block in blocks:
+        items = block.findAll(href=True)
+        for item in items: 
+          url = item["href"]
+          url = "http://www.pnas.org" + url + " " + year
+          #print url
+          f2.write(url)
   
   def synthesis(self):
     f = open('archive/processed/PNASYear.txt', 'w')
@@ -44,8 +45,8 @@ class URLGenerator:
       f.write(url + '\n')
 
   def confirm(self, url):
-    critic1 = "http://www.sciencemag.org/content/" in url 
-    critic3 = len(url) < 100
+    critic1 = ("/content/") in url 
+    critic3 = len(url) < 50
     if critic1 and critic3:
       return True
     
