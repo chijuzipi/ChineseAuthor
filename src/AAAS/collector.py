@@ -1,5 +1,5 @@
 '''
-*********** This class to collect journal info from Science
+*********** This class to collect journal info from PNAS
   (c) 2015 by Chad Zhou
   Northwestern University
 **************************************************************************
@@ -23,7 +23,7 @@ class Collector:
     self.collection = self.db.testAdvFun
     '''
     # read url list from txt
-    with open("archive/processed/Science.txt") as f:
+    with open("archive/processed/PNAS.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -32,7 +32,7 @@ class Collector:
     #yearMap = self.getMap() 
 
     while index < len(pool):
-      time.sleep(4)
+      time.sleep(2)
       infoArray = pool[index].split()
       url   = infoArray[0]
       year  = infoArray[1]
@@ -50,13 +50,18 @@ class Collector:
     soup = BeautifulSoup(content)
     groups = soup.findAll("div", {"class" : "toc-level"})  
     for item in groups:
-      article_type = item.find("h3")
+      article_type = item.find("h2")
       article_list = item.find("ul", {"class" : "cit-list"})
 
-      papers       = article_list.findAll("li", {"class":"toc-cit"})
+      papers       = article_list.findAll("li", {"class":"cit"})
       
       if article_type is None:
-        article_type = 'default'
+        article_type = item.find("h3")
+        if article_type is None:
+          print url + " ---> " + "article_type is none"
+          article_type = 'default'
+        else:
+          article_type = article_type.text 
       else:
         article_type = article_type.text 
 
@@ -69,15 +74,25 @@ class Collector:
           title = "no-title"
         else:
           title = title.text
+
+        if article_type == 'default':
+          print title
+
         if doi is None:
           doi = "no-doi"
         else:
           doi = doi.text
+
         authortext = "no-author"
         if authors is not None:
           authortext = ""
           for author in authors.findAll("li"):
-            authortext = authortext + author.text
+            authortext = authortext + " " + author.text
+        else:
+          print url + " ---> " + "author is none"
+          print title
+          continue
+        
         
         comp = {}
 
