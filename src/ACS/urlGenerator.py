@@ -4,10 +4,10 @@ class URLGenerator:
   def __init__(self):
 
     # when the urls from file
-    self.generate()
+    #self.generate()
 
     # when the urls can be direct synthesized
-    #self.synthesis()
+    self.synthesis()
 
   def generate(self):
     f1 = open('archive/InorganicChemIssues.html', 'r')
@@ -25,7 +25,7 @@ class URLGenerator:
   def synthesis(self):
     f = open('archive/processed/test.txt', 'w')
     parentURL = "parentURL"
-    for vol in range (1,9):
+    for vol in range (2,10):
       for issue in range(1, 13):
         url = parentURL + str(vol) + "/" + str(issue)
         f.write(url + '\n')

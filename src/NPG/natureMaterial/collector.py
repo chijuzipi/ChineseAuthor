@@ -23,7 +23,7 @@ class Collector:
     self.collection = self.db.testAdvFun
     '''
     # read url list from txt
-    with open("archive/processed/Science.txt") as f:
+    with open("../archive/processed/NatureMat.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -48,37 +48,39 @@ class Collector:
   def parse(self, content, url, year):
     # first get all the possible info from url
     soup = BeautifulSoup(content)
-    groups = soup.findAll("div", {"class" : "toc-level"})  
+    groups = soup.findAll("div", {"class" : "subject"})  
     for item in groups:
-      article_type = item.find("h3")
-      article_list = item.find("ul", {"class" : "cit-list"})
-
-      papers       = article_list.findAll("li", {"class":"toc-cit"})
+      article_type = item.find("h3", {"class":"subject"})
+      article_list = item.findAll("div", {"class" : "spacing"})
       
       if article_type is None:
         article_type = 'default'
       else:
         article_type = article_type.text 
 
-      for paper in papers:
-        title   = paper.find("h4", {"class" : "cit-title-group"})
-        authors = paper.find("ul", {"class" : "cit-auth-list"})
-        cite    = paper.find("cite")
-        doi     = cite.find("span", {"class" : "cit-doi"})
+      for paper in article_list:
+        title   = paper.find("h4")
+        authors = paper.find("p", {"class" : "aug"})
+        doi     = paper.find("p", {"class" : "doi"})
+        # Nature nano has the category attribute that put the article into fine categories.
+        cata    = paper.find("p", {"class" : "category"})
         if title is None:
           title = "no-title"
         else:
           title = title.text
+
         if doi is None:
           doi = "no-doi"
         else:
           doi = doi.text
-        authortext = "no-author"
-        if authors is not None:
-          authortext = ""
-          for author in authors.findAll("li"):
-            authortext = authortext + author.text
+
+        if authors is None:
+          authors = "no-author"
+          continue
+        else:
+          authors = authors.text
         
+        '''
         comp = {}
 
         comp["title"]   = title
@@ -86,12 +88,13 @@ class Collector:
         comp["doi"]     = doi
         comp["year"]    = year
         comp["article type"] = article_type
-        #self.collection.insert(comp)
+        self.collection.insert(comp)
         print "save success " + comp["doi"]
+        '''
 
         print '***TITLE*** ' + title
         print '***DOI*** ' + doi
-        print '*** AUTHOR *** ' + authortext
+        print '*** AUTHOR *** ' + authors
         print year
         print article_type
         print
