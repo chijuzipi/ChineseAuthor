@@ -10,20 +10,20 @@ class URLGenerator:
     self.synthesis()
 
   def synthesis(self):
-    f = open('archive/processed/NatureCellBio.txt', 'w')
-    parentURL = "http://www.nature.com/ncb/journal/"
-    for vol in range (1,2):
-      for issue in range(1, 9):
+    f = open('archive/processed/NatureChemistry.txt', 'w')
+    parentURL = "http://www.nature.com/nchem/journal/"
+    for vol in range (1, 2):
+      for issue in range(1, 10):
         url = parentURL + "v" + str(vol) + "/" + "n" + str(issue) + "/index.html"
-        f.write(url + " " + str((vol + 1998))+'\n')
-    for vol in range (2,17):
+        f.write(url + " " + str((vol + 2008))+'\n')
+    for vol in range (2, 7):
       for issue in range(1, 13):
         url = parentURL + "v" + str(vol) + "/" + "n" + str(issue) + "/index.html"
-        f.write(url + " " + str((vol + 1998))+'\n')
-    for vol in range (17,18):
-      for issue in range(1, 3):
+        f.write(url + " " + str((vol + 2008))+'\n')
+    for vol in range (7,8):
+      for issue in range(1, 4):
         url = parentURL + "v" + str(vol) + "/" + "n" + str(issue) + "/index.html"
-        f.write(url + " " + str((vol + 1998))+'\n')
+        f.write(url + " " + str((vol + 2008))+'\n')
 
   def confirm(self, url):
     critic1 = "http://pubs.acs.org/toc/joceah" in url 

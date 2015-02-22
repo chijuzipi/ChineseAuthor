@@ -17,11 +17,10 @@ class Collector:
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
 
-    '''
     client = MongoClient()
-    self.db = client.Wiley
-    self.collection = self.db.testAdvFun
-    '''
+    self.db = client.AAAS
+    self.collection = self.db.PNAS_coll
+
     # read url list from txt
     with open("archive/processed/PNAS.txt") as f:
       pool = f.readlines()
@@ -37,13 +36,17 @@ class Collector:
       url   = infoArray[0]
       year  = infoArray[1]
 
+      if "supp" in url or "Supp" in url:
+        index += 1
+        continue
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, url, year)
-      index += div 
+      index += 1 
+      print
 
   def parse(self, content, url, year):
     # first get all the possible info from url
@@ -52,7 +55,8 @@ class Collector:
     for item in groups:
       article_type = item.find("h2")
       article_list = item.find("ul", {"class" : "cit-list"})
-
+      if article_list is None:
+        continue
       papers       = article_list.findAll("li", {"class":"cit"})
       
       if article_type is None:
@@ -100,8 +104,9 @@ class Collector:
         comp["author"]  = authortext
         comp["doi"]     = doi
         comp["year"]    = year
-        comp["article type"] = article_type
-        #self.collection.insert(comp)
+        comp["type"] = article_type
+        self.collection.insert(comp)
+        '''
         print "save success " + comp["doi"]
 
         print '***TITLE*** ' + title
@@ -109,7 +114,7 @@ class Collector:
         print '*** AUTHOR *** ' + authortext
         print year
         print article_type
-        print
+        '''
 
   def getMap(self):
     out = {}

@@ -17,13 +17,11 @@ class Collector:
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
 
-    '''
     client = MongoClient()
-    self.db = client.Wiley
-    self.collection = self.db.testAdvFun
-    '''
+    self.db = client.Science
+    self.collection = self.db.Science_coll
     # read url list from txt
-    with open("archive/processed/Science.txt") as f:
+    with open("archive/processed/test.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -32,7 +30,7 @@ class Collector:
     #yearMap = self.getMap() 
 
     while index < len(pool):
-      time.sleep(4)
+      time.sleep(2)
       infoArray = pool[index].split()
       url   = infoArray[0]
       year  = infoArray[1]
@@ -41,9 +39,9 @@ class Collector:
       print datetime.datetime.now()
 
       # timeout 60 s
-      content = urllib2.urlopen(url, timeout=120).read()
+      content = urllib2.urlopen(url, timeout=500).read()
       self.parse(content, url, year)
-      index += div 
+      index += 1 
 
   def parse(self, content, url, year):
     # first get all the possible info from url
@@ -77,7 +75,7 @@ class Collector:
         if authors is not None:
           authortext = ""
           for author in authors.findAll("li"):
-            authortext = authortext + author.text
+            authortext = authortext + author.text + " "
         
         comp = {}
 
@@ -86,7 +84,7 @@ class Collector:
         comp["doi"]     = doi
         comp["year"]    = year
         comp["article type"] = article_type
-        #self.collection.insert(comp)
+        self.collection.insert(comp)
         print "save success " + comp["doi"]
 
         print '***TITLE*** ' + title

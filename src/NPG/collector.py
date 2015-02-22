@@ -10,6 +10,7 @@ from pymongo import MongoClient
 from bs4 import BeautifulSoup
 import time, datetime
 import re
+import string
 
 class Collector:
   def __init__(self):
@@ -17,13 +18,12 @@ class Collector:
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
 
-    '''
     client = MongoClient()
-    self.db = client.Wiley
-    self.collection = self.db.testAdvFun
-    '''
+    self.db = client.NPG
+
+    self.collection = self.db.NatureChemistry_coll
     # read url list from txt
-    with open("../archive/processed/NatureMat.txt") as f:
+    with open("../archive/processed/NatureChemistry.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -32,7 +32,7 @@ class Collector:
     #yearMap = self.getMap() 
 
     while index < len(pool):
-      time.sleep(4)
+      time.sleep(2)
       infoArray = pool[index].split()
       url   = infoArray[0]
       year  = infoArray[1]
@@ -40,10 +40,10 @@ class Collector:
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
-      # timeout 60 s
+      # timeout 120 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, url, year)
-      index += div 
+      index += 1 
 
   def parse(self, content, url, year):
     # first get all the possible info from url
@@ -79,25 +79,26 @@ class Collector:
           continue
         else:
           authors = authors.text
+          authors = re.compile(r'[\n\r\t]').sub(' ', authors)
         
-        '''
         comp = {}
 
         comp["title"]   = title
-        comp["author"]  = authortext
+        comp["author"]  = authors
         comp["doi"]     = doi
         comp["year"]    = year
-        comp["article type"] = article_type
+        comp["type"] = article_type
         self.collection.insert(comp)
         print "save success " + comp["doi"]
-        '''
 
+        '''
         print '***TITLE*** ' + title
         print '***DOI*** ' + doi
         print '*** AUTHOR *** ' + authors
         print year
         print article_type
         print
+        '''
 
   def getMap(self):
     out = {}
