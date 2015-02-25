@@ -16,14 +16,13 @@ class Collector:
     cookie_support= urllib2.HTTPCookieProcessor(cookielib.CookieJar())
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
-    '''
+
     client = MongoClient()
-    self.db = client.AAAS
-    self.collection = self.db.PNAS_coll
-    '''
+    self.db = client.APS
+    self.collection = self.db.prb_coll
 
     # read url list from txt
-    with open("archive/processed/prb_processed.txt") as f:
+    with open("archive/processed/prl_processed.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -53,7 +52,6 @@ class Collector:
       title   = paper.find("h5", {"class" : "title"})
       authors = paper.find("h6", {"class" : "authors"})
       doi     = paper["data-id"]
-      #doi     = cite.find("span", {"class" : "cit-doi"})
       if title is None:
         title = "no-title"
       else:
@@ -61,24 +59,20 @@ class Collector:
 
 
       if authors is None:
-        authors = "no author"
+        authors = "no-author"
       else:
         authors = authors.text
       
-      print title
-      print authors
-      print doi
-      '''
       comp = {}
 
       comp["title"]   = title
-      comp["author"]  = authortext
+      comp["author"]  = authors
       comp["doi"]     = doi
       comp["year"]    = year
-      comp["type"] = article_type
       self.collection.insert(comp)
       print "save success " + comp["doi"]
 
+      '''
       print '***TITLE*** ' + title
       print '***DOI*** ' + doi
       print '*** AUTHOR *** ' + authortext
