@@ -84,7 +84,7 @@ class Analyzer:
       y3.append(has[year])
 
     plotHelper = Plot()
-    plotHelper.plotBar(yearList, y1, y2, y3, 'JACS')
+    plotHelper.plotBar(yearList, y1, y2, y3, 'ACS Nano')
 
   def alignment(self, totalResult, firstResult, hasResult):
     for key in totalResult:
