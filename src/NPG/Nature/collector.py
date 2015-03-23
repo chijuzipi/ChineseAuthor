@@ -25,48 +25,47 @@ class Collector:
 
     f2 = open("log.txt", "w")
     # read url list from txt
-    with open("archive/processed/Nature.txt") as f:
+    with open("archive/processed/Nature2.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
     index = 0
     
     #switch parse function
-    interval = set()
-    interval.add("http://www.nature.com/nature/journal/v467/n7313/index.html")
-    interval.add("http://www.nature.com/nature/journal/v387/n6636/index.html")
-    moduleNum = 2 
+    blackList = set()
+
+    '''
+    blackList.add("http://www.nature.com/nature/journal/v428/n6978/index.html")
+    blackList.add("http://www.nature.com/nature/journal/v428/n6979/index.html")
+    blackList.add("http://www.nature.com/nature/journal/v423/n6940/index.html")
+    blackList.add("http://www.nature.com/nature/journal/v424/n6948/index.html")
+    blackList.add("http://www.nature.com/nature/journal/v423/n6939/index.html")
+    '''
 
     while index < len(pool):
       infoArray = pool[index].split()
       url   = infoArray[0]
       year  = infoArray[1]
-      divid = url.split("/")
-      vol   = divid[5]
-      if int(vol[1:]) > 386:
+      divid = url.split('/')
+      vol   = divid[5][1:]
+      volNum = int(vol)
+      if volNum > 424:
         index += 1
         continue
       
-      
-      if url in interval:
-        moduleNum += 1
+      if url in blackList:
+        index += 1
+        continue
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # tmeout 60 s
       content = urllib2.urlopen(url, timeout=500).read()
-      if moduleNum == 0:
-        self.parse1(content, url, year, f2)
-        index += 1 
-      elif moduleNum == 1:
-        self.parse1(content, url, year, f2)
-        index += 1 
-      elif moduleNum == 2:
-        self.parse2(content, url, year, f2)
-        index += 100 
+      self.parse1(content, url, year, f2)
+      index += 1
 
   def parse2(self, content, url, year,f2):
-    print "using parse2"
+    print "using parser 2"
     # first get all the possible info from url
     soup    = BeautifulSoup(content)
     trs     = soup.findAll('tr')
@@ -97,100 +96,155 @@ class Collector:
       titleText   = re.compile(r'[\n\r\t]').sub(' ', titleText)
       authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
       doi  = re.compile(r'[\n\r\t]').sub(' ', doi)
-      print typeText
-      print titleText
-      print authorText
-      print doi
-      print 
+      if typeText == 'Articles' or typeText == 'Article' or typeText == 'Letters':
+        print typeText
+        print titleText
+        print authorText
+        print doi
+        print 
 
     return
 
   def parse1(self, content, url, year,f2):
-    print "using parse1"
+    print "using parser 1"
     # first get all the possible info from url
     soup    = BeautifulSoup(content)
-    '''
-    section = soup.find("div", {"id" : "research"})  
-    if section is None:
-      #f2.write( "did not find group:--------------------> " + year + "\n")
-      print "did not find group:--------------------> " + year
-      return
-    '''
     
     article_sections = soup.findAll("h3", {"id" : "af"})  
     if len(article_sections) == 0:
       article_sections = soup.findAll("h3", {"id" : "Article"})  
+
     letter_sections  = soup.findAll("h3", {"id" : "lt"})
     if len(letter_sections) == 0:
       letter_sections  = soup.findAll("h3", {"id" : "Letter"})
     for a_se in article_sections:
-      #container = a_se.find_parent('div', {'class':'container'})
-      articles  = a_se.parent.findAll('h4')
-      f2.write(str(len(articles)) + " A" + "\n")
-      print str(len(articles)) + " A" 
-    for l_se in letter_sections:
-      #container = a_se.find_parent('div', {'class':'container'})
-      letters  = l_se.parent.findAll('h4')
-      f2.write(str(len(letters)) + " L" + "\n")
-      print str(len(letters)) + " L"
-
-    '''
-    subsections = section.findAll('section')
-    print len(subsections)
-    for subsection in subsections:
-      div = section.find("div", {"id" : "af"})  
-      if div is not None:
-        articles = div.findAll('article')
-        print str(len(articles)) + " articles"
-      else:
-        div = section.find("div", {"id" : "lt"})  
-        if div is not None:
-          articles = div.findAll('article')
-          print str(len(articles)) + " letters"
-    '''
+      container = a_se.parent
+      article_titles  = container.findAll('h4')
+      #http://stackoverflow.com/questions/11647348/find-next-siblings-until-a-certain-one-using-beautifulsoup
+      for index in range(len(article_titles)):
+        title = article_titles[index].text
       
-    return
+        author= article_authors[index].text
+        doi   = article_dois[index].text
+
+        title   = re.compile(r'[\n\r\t]').sub(' ', title)
+        #desc    = re.compile(r'[\n\r\t]').sub(' ', desc)
+        author  = re.compile(r'[\n\r\t]').sub(' ', author)
+        doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
+        
+        '''
+        print "**************** Article ********************"
+        print title
+        print author
+        print doi
+        print
+        '''
+
+    for l_se in letter_sections:
+      container = l_se.parent
+      #container = a_se.find_parent('div', {'class':'container'})
+      article_titles  = container.findAll('h4')
+      article_authors = container.findAll('p', {"class":"aug"})
+      article_dois    = container.findAll('p', {"class":"doi"})
+      l1 = len(article_titles)
+      l2 = len(article_authors)
+      l3 = len(article_dois)
+      if (l1 > 0 and l2 > 0 and l3 > 0 and not (l1 == l2 and l2 == l3 )):
+        print "***************************NOT MATCH ARRAY *********************"
+        print "***************************************************************************************************************************"
+        continue
+      for index in range(l1):
+        title = article_titles[index].text
+        author= article_authors[index].text
+
+        if l3 > 0:
+          doi   = article_dois[index].text
+        else:
+          doi   = ""
+
+        title   = re.compile(r'[\n\r\t]').sub(' ', title)
+        author  = re.compile(r'[\n\r\t]').sub(' ', author)
+        doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
+        
+        '''
+        print "**************** Letter ********************"
+        print title
+        print author
+        print doi
+        print
+        '''
 
   def parse0(self, content, url, year,f2):
+    print "using parser 0"
     # first get all the possible info from url
     soup    = BeautifulSoup(content)
-    '''
-    section = soup.find("div", {"id" : "research"})  
-    if section is None:
-      #f2.write( "did not find group:--------------------> " + year + "\n")
-      print "did not find group:--------------------> " + year
-      return
-    '''
     
     article_sections = soup.findAll("div", {"id" : "af"})  
     letter_sections  = soup.findAll("div", {"id" : "lt"})
     for a_se in article_sections:
       articles = a_se.findAll('article')
-      f2.write(str(len(articles)) + " A" + "\n")
-      print str(len(articles)) + " A" 
+      for article in articles:
+        title = article.find('h1')
+        if title is not None:
+          titleText = title.text
+        else:
+          continue
+
+        authors = article.find('ul', {'class':'authors'}).findAll('li')
+        authorText = ""
+        for author in authors:
+          if author.find('li', {'class':'etal'}) is not None:
+            continue
+          authorText += author.text + ', '
+
+        desc = article.find('p', {'class':'standfirst'})
+        if desc is not None:
+          descText = desc.text
+        else:
+          descText = ""
+
+        titleText   = re.compile(r'[\n\r\t]').sub(' ', titleText)
+        authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
+        descText  = re.compile(r'[\n\r\t]').sub(' ', descText)
+
+        print "************* Article **************"
+        print titleText
+        print authorText
+        print descText
+        print
+
     for l_se in letter_sections:
       letters  = l_se.findAll('article')
-      f2.write(str(len(letters)) + " L" + "\n")
-      print str(len(letters)) + " L"
+      for letter in letters:
+        title = letter.find('h1')
+        if title is not None:
+          titleText = title.text
+        else:
+          continue
 
-    '''
-    subsections = section.findAll('section')
-    print len(subsections)
-    for subsection in subsections:
-      div = section.find("div", {"id" : "af"})  
-      if div is not None:
-        articles = div.findAll('article')
-        print str(len(articles)) + " articles"
-      else:
-        div = section.find("div", {"id" : "lt"})  
-        if div is not None:
-          articles = div.findAll('article')
-          print str(len(articles)) + " letters"
-    '''
-      
-    return
+        authors = letter.find('ul', {'class':'authors'}).findAll('li')
+        authorText = ""
+        for author in authors:
+          if author.find('li', {'class':'etal'}) is not None:
+            continue
+          authorText += author.text + ', '
 
+        desc = letter.find('p', {'class':'standfirst'})
+        if desc is not None:
+          descText = desc.text
+        else:
+          descText = ""
+
+        titleText   = re.compile(r'[\n\r\t]').sub(' ', titleText)
+        authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
+        descText  = re.compile(r'[\n\r\t]').sub(' ', descText)
         
+        print "************* Letter **************"
+        print titleText
+        print authorText
+        print descText
+        print 
+
 
 def main():
   collector = Collector()
