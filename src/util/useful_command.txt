@@ -1,0 +1,9 @@
+//find all possible value from a given field
+db.pra_coll.distinct("year", {})
+
+
+// document by non-existence of a field?
+db.mycollection.find( { "price" : { "$exists" : false } } )
+
+// remove "\n", "\r", "\t" within the string
+authors   = re.compile(r'[\n\r\t]').sub(' ', authors)

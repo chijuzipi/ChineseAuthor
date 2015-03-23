@@ -5,10 +5,10 @@ class URLGenerator:
   def __init__(self):
 
     # when the urls from file
-    #self.generate()
+    self.generate()
 
     # when the urls can be direct synthesized
-    self.synthesis()
+    #self.synthesis()
 
   def generate(self):
     f1 = open('archive/NatureIssues.html', 'r')
@@ -16,15 +16,15 @@ class URLGenerator:
     content = f1.read()
     soup = BeautifulSoup(content)
 
-    #find every <a href ... tag
-    out = soup.find_all('a', href=True)
-    for item in out:
-      url = item['href'] 
-      if self.confirm(url):
-        date = item.find('dd', {'class' : 'published'}).text
-        year = date.split()[2]
+    groups = soup.findAll('li', {'class' : 'expanded'})
+    for group in groups:
+      year = group.find('h2').text
+      urls = group.findAll(href=True)
+      for urlEle in urls:
+        url = urlEle['href']
+        if self.confirm(url):
+          f2.write(url + " " + year + '\n')
 
-        f2.write(url + " " + year + " " + date + '\n')
 
   def getYear(self, itemid):
     return itemid.split('_')[1]

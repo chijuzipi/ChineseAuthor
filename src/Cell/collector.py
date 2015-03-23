@@ -18,13 +18,13 @@ class Collector:
     urllib2.install_opener(opener)
     client = MongoClient()
     self.db = client.Cell
-    self.collection = self.db.Cell_coll
+    self.collection = self.db.MolecularCell_coll
 
     # read url list from txt
-    with open("archive/processed/Cell.txt") as f:
+    with open("archive/processed/MolecularCell.txt") as f:
       pool = f.readlines()
    
-    div = len(pool) / 4 
+    div = len(pool) / 20
     index = 0
     
     #yearMap = self.getMap() 
@@ -33,20 +33,23 @@ class Collector:
       infoArray = pool[index].split()
       url   = infoArray[0]
       year  = infoArray[1]
-      issue = infoArray[2]
+      #issue = infoArray[2]
+      '''
       if(issue == 'Supplement'):
         index += 1
         continue
+      '''
 
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
-      self.parse(content, url, year, issue)
+      #self.parse(content, url, year, issue)
+      self.parse(content, url, year)
       index += 1
 
-  def parse(self, content, url, year, issue):
+  def parse(self, content, url, year):
     # first get all the possible info from url
     soup   = BeautifulSoup(content)
     uppers  = soup.findAll("div", {"class" : 'articleCitations'})  
@@ -54,6 +57,7 @@ class Collector:
       groups = upper.findAll("div", {"class" : ['heading', 'articleCitation']})  
       if(len(groups) == 0):
         continue
+
       article_type = ""
       for item in groups:
         #print item.text
@@ -67,6 +71,8 @@ class Collector:
         title  = info.find('div', {'class' : 'title'}).text
         authors = info.find('div', {'class' : 'authors'}).text
         doi    = info.find('div', {'class' : 'doi'}).text
+        doi    = doi.split("/")
+        doi    = doi[3]+"/"+doi[4]
 
         if article_type == "":
           article_type = "Articles"
@@ -75,7 +81,7 @@ class Collector:
         comp["author"]  = authors
         comp["type"]    = article_type
         comp["doi"]     = doi
-        comp["issue"]   = issue
+        #comp["issue"]   = issue
         comp["year"]    = year
 
         self.collection.insert(comp)

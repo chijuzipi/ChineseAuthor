@@ -1,16 +1,19 @@
+import urllib2, cookielib
+from pymongo import MongoClient
 from bs4 import BeautifulSoup
+import time, datetime
 
 class URLGenerator:
   def __init__(self):
 
     # when the urls from file
-    #self.generate()
+    self.generate()
 
     # when the urls can be direct synthesized
-    self.synthesis()
+    #self.synthesis()
 
   def generate(self):
-    f1 = open('archive/InorganicChemIssues.html', 'r')
+    f1 = open('archive/NAresearch.html', 'r')
     f2 = open('archive/processed/InorganicChem.txt', 'w')
     content = f1.read()
     soup = BeautifulSoup(content)
@@ -23,18 +26,11 @@ class URLGenerator:
         f2.write(url + '\n')
   
   def synthesis(self):
-    f = open('archive/processed/AccountChem.txt', 'w')
-    parentURL = "http://pubs.acs.org/toc/achre4/"
-    for vol in range (1,48):
-      for issue in range(1, 13):
-        url = parentURL + str(vol) + "/" + str(issue)
-        year = str(vol + 1967)
-        f.write(url + " " + year +'\n')
-    for vol in range (48,49):
-      for issue in range(1, 3):
-        url = parentURL + str(vol) + "/" + str(issue)
-        year = str(vol + 1967)
-        f.write(url + " " + year +'\n')
+    f = open('archive/processed/NAResearch.txt', 'w')
+    parentURL = "http://nar.oxfordjournals.org/content/by/year/"
+    for year in range (1974, 2016):
+      url = parentURL + str(year)
+      f.write(url + " " + str(year) +'\n')
 
   def confirm(self, url):
     critic1 = "http://pubs.acs.org/toc/inocaj" in url 

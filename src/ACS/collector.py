@@ -16,22 +16,25 @@ class Collector:
     urllib2.install_opener(opener)
     
     client = MongoClient()
-    self.db = client.author
-    self.collection = self.db.InorganicChem_coll
+    self.db = client.ACS
+    self.collection = self.db.test_coll
     #self.collection = self.db.test
     
     # read url list from txt
-    with open("archive/processed/InorganicChem.txt") as f:
+    with open("archive/processed/AccountChem.txt") as f:
       pool = f.readlines()
     
     for url in pool:
-    
+      print url
+      urlarray  = url.split() 
+      url  = urlarray[0]
+      year = urlarray[1]
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
-      self.parse(content)
+      self.parse(content, year)
     
 ## depracted ##
   def getAffi(self, doi):
@@ -42,7 +45,7 @@ class Collector:
     print "the affi is " + out[0].text
     return out[0].text 
 
-  def parse(self, content):
+  def parse(self, content, year):
     soup = BeautifulSoup(content)
     titleAndAuthor = soup.findAll("div", {"class" : "titleAndAuthor"})
     dates = soup.findAll("div", {"class" : "coverdate"})
@@ -67,10 +70,13 @@ class Collector:
       typ     = temp[1]
       doi     = DOIs[i].text
       doi     = doi.split(":")[1].strip()
+      if(typ[len(typ)-1] == ')'):
+        typ = typ[:len(typ)-1]
 
       comp["title"] = title
       comp["author"] = author 
       comp["date"] = date 
+      comp["year"] = year
       comp["doi"] = doi 
       comp["type"] = typ 
       self.collection.insert(comp)

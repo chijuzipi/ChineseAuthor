@@ -4,14 +4,14 @@ class URLGenerator:
   def __init__(self):
 
     # when the urls from file
-    #self.generate()
+    self.generate()
 
     # when the urls can be direct synthesized
-    self.synthesis()
+    #self.synthesis()
 
   def generate(self):
-    f1 = open('archive/InorganicChemIssues.html', 'r')
-    f2 = open('archive/processed/InorganicChem.txt', 'w')
+    f1 = open('archive/NatureGene/NatureGeneIssueList.html', 'r')
+    f2 = open('archive/processed/NatureGene.txt', 'w')
     content = f1.read()
     soup = BeautifulSoup(content)
 
@@ -37,9 +37,8 @@ class URLGenerator:
         f.write(url + " " + year +'\n')
 
   def confirm(self, url):
-    critic1 = "http://pubs.acs.org/toc/inocaj" in url 
-    critic3 = len(url) < 100
-    if critic1 and critic3:
+    critic1 = "http://www.nature.com/ng/journal/" in url 
+    if critic1:
       return True
     
 def main():

@@ -13,10 +13,18 @@ class Analyzer:
   def __init__(self):
     # build hashmap
     self.firstname, self.surname = self.buildDict()
+    '''
+    name = "Anand Acharya"
+    if self.isChinese(name):
+      print "Loren M. Long is Chinese"
+    '''
 
     client = MongoClient()
-    db = client.author
-    collection = db.AcsNano
+    db  = client.ACS
+    db2 = client.ACS_processed
+    collection = db.JOfOrganicChem_coll
+    self.collection2 = db2.joforganicchem_coll_chinese_first
+    self.collection3 = db2.joforganicchem_coll_chinese_co
 
     cursor = collection.find({})
     index = 0
@@ -40,10 +48,9 @@ class Analyzer:
       doc = cursor[index]
 
       authors = doc['author']
-      date    = doc['date']
+      year    = doc["year"]
 
       authorList = self.getAuthors(authors)
-      year = self.getYear(date)
 
       #increase total paper counter
       if year in totalResult:
@@ -52,25 +59,20 @@ class Analyzer:
         totalResult[year] = 1
       
       first, coauthor = self.detectChinese(authorList)
-
+      
       if(first):
-        if year in firstResult:
-          firstResult[year] += 1
-        else:
-          firstResult[year]  = 1
-      if(coauthor):
-        if year in hasResult:
-          hasResult[year] += 1
-        else:
-          hasResult[year]  = 1
+        self.collection2.insert(doc)
+        self.collection3.insert(doc)
+      elif(coauthor):
+        self.collection3.insert(doc)
 
       index += 1
       cursor.close()
     
-    self.alignment(totalResult, firstResult, hasResult)
+    #self.alignment(totalResult, firstResult, hasResult)
     #saveToDB(totalResult, firstResult, hasResult)    
 
-    self.makeFigure(totalResult, firstResult, hasResult)
+    #self.makeFigure(totalResult, firstResult, hasResult)
     
   def makeFigure(self, total, first, has):
     yearList  = list(total.keys())
@@ -84,7 +86,7 @@ class Analyzer:
       y3.append(has[year])
 
     plotHelper = Plot()
-    plotHelper.plotBar(yearList, y1, y2, y3, 'ACS Nano')
+    plotHelper.plotBar(yearList, y1, y2, y3, 'Nano Letter')
 
   def alignment(self, totalResult, firstResult, hasResult):
     for key in totalResult:
@@ -92,14 +94,6 @@ class Analyzer:
         firstResult[key] = 0
       if key not in hasResult:
         hasResult[key]   = 0
-
-  def getYear(self, date):
-    out = date.split(',')
-    if len(out) < 2:
-      print date
-      return out[0].strip()
-
-    return out[1].strip()
 
   def detectChinese(self, authorList):
 
@@ -115,10 +109,10 @@ class Analyzer:
   def isChinese(self, name):
     array = name.split()
     if len(array) == 0:
-      return
+      return False
     sur   = array[len(array)-1] 
     first = array[0]
-    if sur in self.surname:
+    if sur in self.surname and first in self.firstname:
       #self.count += 1
       return True
     else: 

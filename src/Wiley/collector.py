@@ -1,5 +1,5 @@
 '''
-*********** This class to collect journal info from ACS 
+*********** This class to collect journal info from Wiley
   (c) 2015 by Chad Zhou
   Northwestern University
 **************************************************************************
