@@ -22,7 +22,7 @@ class Collector:
     self.collection = self.db.prb_coll
 
     # read url list from txt
-    with open("archive/processed/prl_1960.txt") as f:
+    with open("archive/processed/prl_processed.txt") as f:
       pool = f.readlines()
    
     div = len(pool) / 20 
@@ -41,7 +41,7 @@ class Collector:
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, url, year)
-      index += 1 
+      index += div
       print
 
   def parse(self, content, url, year):

@@ -17,30 +17,18 @@ class Collector:
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
     
-    '''
     client = MongoClient()
     self.db = client.NPG
     self.collection = self.db.Nature_coll
-    '''
 
     f2 = open("log.txt", "w")
     # read url list from txt
-    with open("archive/processed/Nature2.txt") as f:
+    with open("archive/processed/Nature1.txt") as f:
       pool = f.readlines()
    
-    div = len(pool) / 20 
+    div = len(pool) / 50
     index = 0
     
-    #switch parse function
-    blackList = set()
-
-    '''
-    blackList.add("http://www.nature.com/nature/journal/v428/n6978/index.html")
-    blackList.add("http://www.nature.com/nature/journal/v428/n6979/index.html")
-    blackList.add("http://www.nature.com/nature/journal/v423/n6940/index.html")
-    blackList.add("http://www.nature.com/nature/journal/v424/n6948/index.html")
-    blackList.add("http://www.nature.com/nature/journal/v423/n6939/index.html")
-    '''
 
     while index < len(pool):
       infoArray = pool[index].split()
@@ -49,20 +37,19 @@ class Collector:
       divid = url.split('/')
       vol   = divid[5][1:]
       volNum = int(vol)
+      '''
       if volNum > 424:
         index += 1
         continue
+      '''
       
-      if url in blackList:
-        index += 1
-        continue
       print "CRAWLING: " + url 
       print datetime.datetime.now()
 
       # tmeout 60 s
       content = urllib2.urlopen(url, timeout=500).read()
-      self.parse1(content, url, year, f2)
-      index += 1
+      self.parse0(content, url, year, f2)
+      index += 1 
 
   def parse2(self, content, url, year,f2):
     print "using parser 2"
@@ -97,11 +84,27 @@ class Collector:
       authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
       doi  = re.compile(r'[\n\r\t]').sub(' ', doi)
       if typeText == 'Articles' or typeText == 'Article' or typeText == 'Letters':
+        titleText = titleText.rstrip()
+        parts     = titleText.split()
+        titleText     = " ".join(parts[:len(parts)-1])
+        print titleText
+        '''
         print typeText
         print titleText
         print authorText
         print doi
         print 
+        '''
+
+        comp = {}
+
+        comp["title"]   = titleText
+        comp["author"]  = authorText
+        comp["doi"]     = doi
+        comp["year"]    = year
+        comp["type"]    = typeText 
+        self.collection.insert(comp)
+        print "save success " + comp["doi"]
 
     return
 
@@ -117,62 +120,83 @@ class Collector:
     letter_sections  = soup.findAll("h3", {"id" : "lt"})
     if len(letter_sections) == 0:
       letter_sections  = soup.findAll("h3", {"id" : "Letter"})
+
     for a_se in article_sections:
       container = a_se.parent
       article_titles  = container.findAll('h4')
-      #http://stackoverflow.com/questions/11647348/find-next-siblings-until-a-certain-one-using-beautifulsoup
-      for index in range(len(article_titles)):
-        title = article_titles[index].text
-      
-        author= article_authors[index].text
-        doi   = article_dois[index].text
+      for article in article_titles:
+        nextNode = article
+        title = article.text 
+        author = ""
+        doi = ""
+        while True:
+          nextNode   = nextNode.nextSibling
+          if nextNode is None:
+            break
+          if nextNode.name == 'p':
+            classValue = nextNode['class'][0]
+            if classValue == 'aug':
+              author = nextNode.text
+            if classValue == 'doi':
+              doi    = nextNode.text
+          else:
+            title   = re.compile(r'[\n\r\t]').sub(' ', title)
+            author  = re.compile(r'[\n\r\t]').sub(' ', author)
+            doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
+            '''
+            print title
+            print author
+            print doi
+            '''
+            comp = {}
 
-        title   = re.compile(r'[\n\r\t]').sub(' ', title)
-        #desc    = re.compile(r'[\n\r\t]').sub(' ', desc)
-        author  = re.compile(r'[\n\r\t]').sub(' ', author)
-        doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
-        
-        '''
-        print "**************** Article ********************"
-        print title
-        print author
-        print doi
-        print
-        '''
+            comp["title"]   = title
+            comp["author"]  = author
+            comp["doi"]     = doi
+            comp["year"]    = year
+            comp["type"]    = "Article" 
+            self.collection.insert(comp)
+            print "save success " + comp["doi"]
+            break
 
     for l_se in letter_sections:
       container = l_se.parent
       #container = a_se.find_parent('div', {'class':'container'})
       article_titles  = container.findAll('h4')
-      article_authors = container.findAll('p', {"class":"aug"})
-      article_dois    = container.findAll('p', {"class":"doi"})
-      l1 = len(article_titles)
-      l2 = len(article_authors)
-      l3 = len(article_dois)
-      if (l1 > 0 and l2 > 0 and l3 > 0 and not (l1 == l2 and l2 == l3 )):
-        print "***************************NOT MATCH ARRAY *********************"
-        print "***************************************************************************************************************************"
-        continue
-      for index in range(l1):
-        title = article_titles[index].text
-        author= article_authors[index].text
+      for article in article_titles:
+        nextNode = article
+        title = article.text 
+        author = ""
+        doi = ""
+        while True:
+          nextNode   = nextNode.nextSibling
+          if nextNode is None:
+            break
+          if nextNode.name == 'p':
+            classValue = nextNode['class'][0]
+            if classValue == 'aug':
+              author = nextNode.text
+            if classValue == 'doi':
+              doi    = nextNode.text
+          else:
+            title   = re.compile(r'[\n\r\t]').sub(' ', title)
+            author  = re.compile(r'[\n\r\t]').sub(' ', author)
+            doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
+            '''
+            print title
+            print author
+            print doi
+            '''
+            comp = {}
 
-        if l3 > 0:
-          doi   = article_dois[index].text
-        else:
-          doi   = ""
-
-        title   = re.compile(r'[\n\r\t]').sub(' ', title)
-        author  = re.compile(r'[\n\r\t]').sub(' ', author)
-        doi     = re.compile(r'[\n\r\t]').sub(' ', doi)
-        
-        '''
-        print "**************** Letter ********************"
-        print title
-        print author
-        print doi
-        print
-        '''
+            comp["title"]   = title
+            comp["author"]  = author
+            comp["doi"]     = doi
+            comp["year"]    = year
+            comp["type"]    = "Letter" 
+            self.collection.insert(comp)
+            print "save success " + comp["doi"]
+            break
 
   def parse0(self, content, url, year,f2):
     print "using parser 0"
@@ -207,11 +231,22 @@ class Collector:
         authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
         descText  = re.compile(r'[\n\r\t]').sub(' ', descText)
 
+        '''
         print "************* Article **************"
         print titleText
         print authorText
         print descText
         print
+        '''
+        comp = {}
+
+        comp["title"]   = titleText
+        comp["author"]  = authorText
+        comp["desc"]    = descText 
+        comp["year"]    = year
+        comp["type"]    = "Article" 
+        self.collection.insert(comp)
+        print "save success " + comp["title"]
 
     for l_se in letter_sections:
       letters  = l_se.findAll('article')
@@ -239,11 +274,22 @@ class Collector:
         authorText  = re.compile(r'[\n\r\t]').sub(' ', authorText)
         descText  = re.compile(r'[\n\r\t]').sub(' ', descText)
         
+        '''
         print "************* Letter **************"
         print titleText
         print authorText
         print descText
         print 
+        '''
+        comp = {}
+
+        comp["title"]   = titleText
+        comp["author"]  = authorText
+        comp["desc"]    = descText 
+        comp["year"]    = year
+        comp["type"]    = "Letter" 
+        self.collection.insert(comp)
+        print "save success " + comp["title"]
 
 
 def main():

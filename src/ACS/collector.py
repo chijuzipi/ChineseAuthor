@@ -15,10 +15,10 @@ class Collector:
     opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)
     
+    #open database
     client = MongoClient()
     self.db = client.ACS
     self.collection = self.db.test_coll
-    #self.collection = self.db.test
     
     # read url list from txt
     with open("archive/processed/AccountChem.txt") as f:

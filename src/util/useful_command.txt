@@ -7,3 +7,12 @@ db.mycollection.find( { "price" : { "$exists" : false } } )
 
 // remove "\n", "\r", "\t" within the string
 authors   = re.compile(r'[\n\r\t]').sub(' ', authors)
+
+//The last N added records, from less recent to most recent, can be seen with this query:
+db.collection.find().skip(db.collection.count() - N)
+
+//the paper number that with year > 1999 (exclusive) and < 2005 (exclusive)
+db.JACS_coll.count({"year":{"$gt":"1999", "$lt":"2015"}})
+
+//update collections
+collection.update({'_id':itemId}, {"$set":{'year': '1960'}}, upsert=False)   

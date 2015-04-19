@@ -2,6 +2,8 @@
 *********** This class to analyze chinese authorship from journals 
   (c) 2015 by Chad Zhou
   Northwestern University
+
+  FUNCTION: Analyze the author's nationality by hashtable from mongoDB
 **************************************************************************
 '''
 
@@ -20,18 +22,20 @@ class Analyzer:
     '''
 
     client = MongoClient()
-    db  = client.ACS
-    db2 = client.ACS_processed
-    collection = db.JOfOrganicChem_coll
-    self.collection2 = db2.joforganicchem_coll_chinese_first
-    self.collection3 = db2.joforganicchem_coll_chinese_co
+    db  = client.Wiley
+    #db2 = client.ACS_processed
+    collection = db.AdvMat_coll
+    #self.collection2 = db2.joforganicchem_coll_chinese_first
+    #self.collection3 = db2.joforganicchem_coll_chinese_co
 
-    cursor = collection.find({})
-    index = 0
-    count = cursor.count()
+    cursor    = collection.find({})
+    documents = list(cursor)
+    index     = 0
+    count     = cursor.count()
     
     firstChinese = 0
-    self.count = 0
+    lastChinese  = 0
+    self.count   = 0
     
     # total paper counter 
     totalResult = {}
@@ -41,11 +45,14 @@ class Analyzer:
 
     # chinese co-author counter
     hasResult = {}
+
+    # chinese correspondeing-author counter
+    lastResult = {}
     
     while index != count: 
       if index % 1000 == 0:
         print "processed " + str(index) + " articles..."
-      doc = cursor[index]
+      doc = documents[index]
 
       authors = doc['author']
       year    = doc["year"]
@@ -58,7 +65,7 @@ class Analyzer:
       else:
         totalResult[year] = 1
       
-      first, coauthor = self.detectChinese(authorList)
+      first, coauthor, last = self.detectChinese(authorList)
       
       if(first):
         self.collection2.insert(doc)
@@ -67,37 +74,42 @@ class Analyzer:
         self.collection3.insert(doc)
 
       index += 1
-      cursor.close()
+
+    cursor.close()
     
-    #self.alignment(totalResult, firstResult, hasResult)
+    self.alignment(totalResult, firstResult, hasResult, lastResult)
     #saveToDB(totalResult, firstResult, hasResult)    
 
-    #self.makeFigure(totalResult, firstResult, hasResult)
+    self.makeFigure(totalResult, firstResult, hasResult, lastResult)
     
-  def makeFigure(self, total, first, has):
+  def makeFigure(self, total, first, has, last):
     yearList  = list(total.keys())
     yearList.sort()
     y1 = [] 
     y2 = []
     y3 = []
+    y4 = []
     for year in yearList:
       y1.append(total[year])
       y2.append(first[year])
       y3.append(has[year])
+      y4.append(last[year])
 
     plotHelper = Plot()
-    plotHelper.plotBar(yearList, y1, y2, y3, 'Nano Letter')
+    plotHelper.plotBar(yearList, y1, y2, y3, y4, 'Adv. Mat.')
 
-  def alignment(self, totalResult, firstResult, hasResult):
+  def alignment(self, totalResult, firstResult, hasResult, lastResult):
     for key in totalResult:
       if key not in firstResult:
         firstResult[key] = 0
       if key not in hasResult:
         hasResult[key]   = 0
+      if key not in lastResult:
+        lastResult[key]   = 0
 
   def detectChinese(self, authorList):
 
-    if self.isChinese(authorList[0]):
+    if self.isChinese(authorList[0]) and :
       return True, True
 
     for author in authorList:
