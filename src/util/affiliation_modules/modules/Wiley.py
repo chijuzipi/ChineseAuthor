@@ -40,9 +40,10 @@ class WileyParser:
 
   def getKey(self):
     return self.key
-
-def getUrl(coll, doi):
-  if coll == "AdvFunMaterial_coll":
-    return "http://onlinelibrary.wiley.com/doi/" + doi + "/abstract"
-  else:
-    return""
+  
+  @staticmethod
+  def getUrl(coll, doi):
+    if coll == "AdvFunMaterial_coll":
+      return "http://onlinelibrary.wiley.com/doi/" + doi + "/abstract"
+    else:
+      return""

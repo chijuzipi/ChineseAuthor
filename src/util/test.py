@@ -1,7 +1,11 @@
 from stemming.porter2 import stem
+import urllib2, cookielib
+url = "http://stackoverflow.com/questions/735975/static-methods-in-python"
+content = urllib2.urlopen(url, timeout=120).read()
+print len(content)
 
+'''
 documents = "highly"
-
 divid = documents.split()
 for word in divid:
   word = word.lower()
@@ -9,7 +13,6 @@ for word in divid:
   print word
 
 
-'''
 word = "x1u3"
 if word[0] != 'p':
   print "False"

@@ -9,15 +9,11 @@ from pymongo import MongoClient
 from bs4 import BeautifulSoup
 import time, datetime
 import re
+  
+from modules.Wiley import WileyParser
+from modules.APS   import APSParser
+from modules.ACS   import ACSParser
 
-from APS import APSParser
-import APS
-
-from ACS import ACSParser
-import ACS
-
-from Wiley import WileyParser
-import Wiley 
 
 class Collector:
 
@@ -64,7 +60,7 @@ class Collector:
             time.sleep(1)
 
             #TODO set module
-            url = Wiley.getUrl(c, doi)
+            url = WileyParser.getUrl(c, doi)
 
             print "---> CRAWLING: " + url 
             print datetime.datetime.now()

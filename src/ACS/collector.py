@@ -35,15 +35,6 @@ class Collector:
       # timeout 60 s
       content = urllib2.urlopen(url, timeout=120).read()
       self.parse(content, year)
-    
-## depracted ##
-  def getAffi(self, doi):
-    url = "http://pubs.acs.org/doi/full/" +  doi
-    content = urllib2.urlopen(url).read()
-    soup = BeautifulSoup(content)
-    out = soup.findAll("div", {"class" : "affiliations"})
-    print "the affi is " + out[0].text
-    return out[0].text 
 
   def parse(self, content, year):
     soup = BeautifulSoup(content)

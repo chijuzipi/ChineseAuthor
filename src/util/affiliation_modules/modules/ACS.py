@@ -32,12 +32,13 @@ class ACSParser:
 
   def getAbs(self):
     return self.abstract
-
-def getUrl(coll, doi):
-  if coll == "JACS_coll":
-    return "http://pubs.acs.org/doi/abs/" + doi
-  else:
-    return""
+  
+  @staticmethod
+  def getUrl(coll, doi):
+    if coll == "JACS_coll":
+      return "http://pubs.acs.org/doi/abs/" + doi
+    else:
+      return""
     
      
 

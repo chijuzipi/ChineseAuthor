@@ -34,12 +34,13 @@ class APSParser:
 
   def getAbs(self):
     return self.abstract
-
-def getUrl(coll, doi):
-  if coll == "prl_coll":
-    return "http://journals.aps.org/prl/abstract/" + doi
-  else:
-    return ""
+  
+  @staticmethod
+  def getUrl(coll, doi):
+    if coll == "prl_coll":
+      return "http://journals.aps.org/prl/abstract/" + doi
+    else:
+      return ""
     
      
 
