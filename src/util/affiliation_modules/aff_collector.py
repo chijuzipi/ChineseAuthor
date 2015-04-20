@@ -14,6 +14,8 @@ from modules.Wiley import WileyParser
 from modules.APS   import APSParser
 from modules.ACS   import ACSParser
 
+from modules.proxyLIB import URLlib2
+
 
 class Collector:
 
@@ -25,12 +27,12 @@ class Collector:
     client = MongoClient()
 
     #TODO  set db
-    self.db = client.Wiley
+    self.db = client.ACS
     collection_list = self.db.collection_names(False)
     include_list = set()
 
     #TODO set collection
-    include_list.add("AdvFunMaterial_coll")
+    include_list.add("JACS_coll")
 
     ## inclusive year range
     year_max = 2015
@@ -49,41 +51,49 @@ class Collector:
         count = cursor.count()
         
         while index != count: 
-          if index % 10000 == 0:
-            print "processed " + c + str(index) + " articles..."
+          index = 1002
           doc       = documents[index]
           itemId    = doc['_id']
           year      = int(doc['year'])
           doi       = doc['doi']
+          print doi
+          break
           if year >= year_min and year <= year_max:
+
             # sleep 1 s
-            time.sleep(1)
+            #time.sleep(1)
 
             #TODO set module
-            url = WileyParser.getUrl(c, doi)
+            url = ACSParser.getUrl(c, doi)
 
             print "---> CRAWLING: " + url 
             print datetime.datetime.now()
 
             # timeout 60 s
+            #TODO whether use proxy
             content = urllib2.urlopen(url, timeout=120).read()
+            '''
+            proxy = URLlib2()
+            content = proxy.readURL(url)
+            '''
 
             #TODO set function
-            parser     = WileyParser(content)
+            parser     = ACSParser(content)
             affi       = parser.getAffi()
             abstract   = parser.getAbs()
-            key        = parser.getKey()
+            #key        = parser.getKey()
             affi       = re.compile(r'[\n\r\t]').sub(' ', affi).rstrip()
             abstract   = re.compile(r'[\n\r\t]').sub(' ', abstract).rstrip()
-            key        = re.compile(r'[\n\r\t]').sub(' ', key).rstrip()
+            #key        = re.compile(r'[\n\r\t]').sub(' ', key).rstrip()
             #collection.update({'_id':itemId}, {"$set":{'affi': affi, 'abs':abstract}}, upsert=False)
-            print affi
-            print abstract
-            print key
+            print len(affi)
+            print len(abstract)
+            #print key
             print "INDEX is " + str(index)
             
           index += 1
         cursor.close()
+
 
 def main():
   collector = Collector()
